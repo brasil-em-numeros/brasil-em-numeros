@@ -1,7 +1,7 @@
 import os
 from yattag import Doc, indent
 from flask import render_template_string
-import provedores as prv
+from . import provedores as prv
 
 loc = os.path.abspath(
     os.path.dirname(__file__)
