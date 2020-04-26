@@ -1,11 +1,19 @@
 from fapp import app
-from inicio import inicio
+from flask import render_template
+from layouts import update_template, route_feeder_pages
+
+update_template()
+route_feeder_pages(app = app)
 
 @app.route("/")
-@app.route("/index.html")
+@app.route("/home")
 def index():
+    return render_template("home.html")
 
-    return inicio()
+
+@app.route("/about")
+def about():
+    return render_template("about.html")
 
 
 if __name__ == "__main__":

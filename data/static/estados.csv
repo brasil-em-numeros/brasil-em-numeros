@@ -1,0 +1,28 @@
+nome_uf,nome_uf_sigla,codigo_reg,nome_reg,nome_reg_sigla
+Rondônia,RO,1,NORTE,NO
+Acre,AC,1,NORTE,NO
+São Paulo,SP,3,SUDESTE,SE
+Amazonas,AM,1,NORTE,NO
+Roraima,RR,1,NORTE,NO
+Pará,PA,1,NORTE,NO
+Amapá,AP,1,NORTE,NO
+Tocantins,TO,1,NORTE,NO
+Maranhão,MA,2,NORDESTE,NE
+Piauí,PI,2,NORDESTE,NE
+Ceará,CE,2,NORDESTE,NE
+Rio Grande do Norte,RN,2,NORDESTE,NE
+Paraíba,PB,2,NORDESTE,NE
+Pernambuco,PE,2,NORDESTE,NE
+Alagoas,AL,2,NORDESTE,NE
+Sergipe,SE,2,NORDESTE,NE
+Bahia,BA,2,NORDESTE,NE
+Minas Gerais,MG,3,SUDESTE,SE
+Espirito Santo,ES,3,SUDESTE,SE
+Rio de Janeiro,RJ,3,SUDESTE,SE
+Paraná,PR,4,SUL,SU
+Santa Catarina,SC,4,SUL,SU
+Rio Grande do Sul,RS,4,SUL,SU
+Mato Grosso do Sul,MS,5,CENTRO-OESTE,CO
+Mato Grosso,MT,5,CENTRO-OESTE,CO
+Goiás,GO,5,CENTRO-OESTE,CO
+Distrito Federal,DF,5,CENTRO-OESTE,CO

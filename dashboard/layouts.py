@@ -1,119 +1,94 @@
-import dash_core_components as dcc
-import dash_html_components as html
-import plotly.express as px
+import os
+from yattag import Doc, indent
+from flask import render_template_string
+import provedores as prv
 
-from dash.dependencies import Input, Output
-from .app import app
-
-from .data import fake_data
-from .html_helpers import *
-
-df = fake_data()
-
-
-def home_layout():
-
-    page = html.H1(
-        "Brasil em números", className = "mt-4"
-    )
-
-    inicio = data_source_element('Início', 'index.html')
-    header = page_header([inicio])
-    sidebar = main_sidebar([
-        data_source_element(
-            'Portal da transparência',
-            "pdt.html",
-            "fas fa-comments-dollar"
-        ),
-        data_source_element(
-            'IBGE',
-            "ibge.html",
-            "fas fa-globe-americas"
-        )
-    ])
-
-    main_ = main(page)
-
-    content = [
-        header,
-        html.Div(
-            id = "layoutSidenav",
-            children = [
-                sidebar,
-                main_
-            ]
-        )
-    ]
-    return html.Div(content)
-
-
-def slider():
-
-    rng = sorted(df['ano'].unique())
-    date_range = dcc.RangeSlider(
-        id = "slider-ano",
-        min = rng[0],
-        max = rng[-1],
-        step = 1,
-        value = [rng[0], rng[-1]],
-        marks = {r : str(r) for r in rng}
-    )
-
-    return html.Div(
-        className = "container",
-        children = [
-            html.Div(
-                html.P("Use o slider abaixo para selecionar os anos"),
-                className = "row"
-            ),
-            date_range
-        ]
-    )
-
-
-def dropdown():
-
-    estados = df[[
-        'nome_uf', 'nome_uf_sigla'
-    ]].drop_duplicates()
-
-    estados = [
-        {'label' : row['nome_uf'], 'value' : row['nome_uf_sigla']} for _, row in estados.iterrows()
-    ]
-
-    return dcc.Dropdown(
-        id = 'estados',
-        options = estados,
-        value   = [e['value'] for e in estados],
-        multi   = True
-    )
-
-
-@app.callback(
-    Output('chart', 'figure'),
-    [
-        Input('slider-ano', 'value'),
-        Input('estados', 'value')
-    ]
+loc = os.path.abspath(
+    os.path.dirname(__file__)
 )
-def update_chart(anos, estados):
-    def chart(data, anos = None):
 
-        if anos is not None:
 
-            amin = anos[0]
-            amax = anos[1]
-            data = data.loc[
-                (data['ano'] <= amax) &
-                (data['ano'] >= amin)
-            ]
+def create_feeder_menu(feeder):
 
-        if estados:
-            data = data.loc[
-                data['nome_uf_sigla'].isin(estados)
-            ]
+    name  = feeder['name']
+    title = feeder['aka']
+    icon  = feeder.get('icon')
 
-        fig = px.bar(data, x="ano", y="valor", color="nome_uf", barmode="group")
-        return fig
+    doc, tag, text = Doc().tagtext()
+    href = "/{}".format(name)
 
-    return chart(df, anos)
+    with tag("a", klass = "nav-link", href = href):
+        if icon is not None:
+            with tag("div", klass = "sb-nav-link-icon"):
+                with tag("i", klass = icon):
+                    pass
+
+        text(title)
+
+    return indent(
+        doc.getvalue(),
+        indentation = " " * 4,
+        indent_text = True
+    )
+
+
+def update_template():
+
+    path = os.path.join(
+        loc, "templates", "index.html"
+    )
+
+    feeders = prv.implemented_feeders()
+    if feeders:
+        src = map(create_feeder_menu, feeders.values())
+    else:
+        src = ""
+
+    tpl = """
+    {{% extends 'base.html' %}}
+    {{% block feeders %}}
+    {feeders}
+    {{% endblock %}}
+    """
+
+    tpl = tpl.format(
+        feeders = "\n".join(src)
+    )
+    
+    with open(path, "w") as f:
+        f.write(tpl)
+
+
+def create_route_for_feeder(feeder):
+
+    tpl = """
+    {{% extends 'index.html' %}}
+    {{% block content %}}
+    {html}
+    {{% endblock %}}
+    """
+
+    fun = feeder['page']
+
+    def view_fun():
+        return render_template_string(
+            tpl.format(html = fun())
+        )
+
+    return view_fun
+
+
+def route_feeder_pages(app):
+
+    feeders = prv.implemented_feeders()
+    if not feeders:
+        return None
+
+    # feeders = {k : v['page'] for k, v in feeders.items()}
+    for k, v in feeders.items():
+
+        app.add_url_rule(
+            "/" + k,
+            endpoint  = k,
+            view_func = create_route_for_feeder(v)
+        )
