@@ -20,3 +20,14 @@
         $("body").toggleClass("sb-sidenav-toggled");
     });
 })(jQuery);
+
+document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.getElementById('pdt-date');
+    var instances = M.Datepicker.init(elems, {});
+    elems.M_Datepicker.options.i18n.months = [
+        'Janeiro', 'Fevereiro', 'Março',
+        'Abril', 'Maio', 'Junho', 'Julho',
+        'Agosto', 'Setembro', 'Outubro',
+        'Novembro', 'Dezembro'
+    ];
+  });
