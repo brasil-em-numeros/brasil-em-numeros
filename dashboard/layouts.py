@@ -54,7 +54,7 @@ def update_template():
     tpl = tpl.format(
         feeders = "\n".join(src)
     )
-    
+
     with open(path, "w") as f:
         f.write(tpl)
 

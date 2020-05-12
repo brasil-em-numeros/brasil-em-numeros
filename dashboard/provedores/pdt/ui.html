@@ -1,0 +1,67 @@
+
+<style type="text/css">
+    .pdt {
+        display: flex;
+    }
+    .sidebar-pdt {
+        width: 20vw;
+        margin-right: 30px;
+        background-color: #c1e3ff;
+        padding-left: 5px;
+        padding-top: 25px;
+        margin-left: 0;
+        height: 100vh;
+        border-right: 1px solid;
+        border-right-color: blue;
+    }
+    .dashboard-pdt{
+        width: 80vw;
+    }
+</style>
+
+<div class="pdt">
+    <div class="sidebar-pdt">
+        <h4>Filtros</h4>
+        <label for="orgao">Selecione o órgão</label>
+        <select class="custom-select" name ="orgao" id="orgao">
+            <option value="saude">Ministério da Saúde</option>
+            <option value="educacao">Ministério da Educação</option>
+        </select>
+        
+        <input type="text" class="datepicker", id="pdt-date">
+        <form action="#">
+            <p class="range-field">
+              <input type="range" id="test5" min="0" max="100" />
+            </p>
+        </form>
+    </div>
+    <div class="dashboard-pdt">
+        <div class="pdt-header">
+            <h1>Portal da transparência</h1>
+        </div>
+        <div class="pdt-chart">
+            Some chart
+        </div>
+        <hr>
+        <div class="pdt-table">
+            <table>
+                <tr>
+                    <th>A</th>
+                    <th>B</th>
+                    <th>C</th>
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td>2</td>
+                    <td>3</td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>5</td>
+                    <td>6</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+

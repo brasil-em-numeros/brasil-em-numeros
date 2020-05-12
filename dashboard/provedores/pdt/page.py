@@ -1,2 +1,11 @@
+from os import path
+
+
 def page():
-    return '<h1 class = "mt-4">Portal da transparência</h1>'
+
+    loc = path.abspath(__file__)
+    loc = path.dirname(loc)
+    with open(path.join(loc, "ui.html"), "r") as f:
+        txt = f.read()
+
+    return txt
