@@ -1,5 +1,6 @@
 from . import data
 from . import page
+from . import pdt
 
 id = {
     'name' : 'pdt',
