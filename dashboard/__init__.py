@@ -17,6 +17,7 @@ def create_app():
         #  Provedores
         # ------------
         
+        app.secret_key = '12345'
         from .home import home
         from .about import about
         from .provedores.pdt import pdt
