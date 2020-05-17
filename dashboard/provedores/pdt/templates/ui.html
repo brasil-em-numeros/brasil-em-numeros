@@ -31,7 +31,7 @@
         <input type="text" class="datepicker", id="pdt-date">
         <form action="#">
             <p class="range-field">
-              <input type="range" id="test5" min="0" max="100" />
+              <input type="range" id="pdt-slider" min="1952" max="2007" step="5"/>
             </p>
         </form>
     </div>
@@ -39,9 +39,16 @@
         <div class="pdt-header">
             <h1>Portal da transparência</h1>
         </div>
-        <div class="pdt-chart">
-            Some chart
-        </div>
+        <div id="pdt-chart" style="width:900px;height:600px;"></div>
+        <!-- <script>
+            TESTER = document.getElementById('pdt-chart');
+            Plotly.newPlot(
+                TESTER,
+                fetch("/pdt_data")
+                    .then(response => console.log(response.json())),
+                {margin: { t: 0 } }
+            );
+        </script> -->
         <hr>
         <div class="pdt-table">
             <table>

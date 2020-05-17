@@ -1,5 +1,8 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, request
+from flask import session, jsonify
 from flask import current_app as app
+import plotly.express as px
+import json
 
 
 pdt_bp = Blueprint(
@@ -10,8 +13,49 @@ pdt_bp = Blueprint(
 )
 
 
-@pdt_bp.route("/pdt")
-def pdt_page():
-    return render_template(
-        "pdt.html", title = 'Portal da transparência'
+@pdt_bp.before_app_first_request
+def set_defaults():
+    session['year'] = 2007
+
+
+def gapminder(year = 2007):
+
+    df = px.data.gapminder()
+    df = df.loc[df['year'] == year]
+    fig = px.scatter(
+        df,
+        x = "gdpPercap",
+        y = "lifeExp",
+        size  = "pop",
+        color = "continent",
+        hover_name = "country",
+        log_x = True,
+        size_max = 60
     )
+
+    return json.loads(fig.to_json()).get('data')
+
+
+@pdt_bp.route("/pdt", methods = ['GET', 'POST'])
+def pdt_page():
+
+    if request.method == 'POST':
+        year = request.get_json()
+        year = int(year)
+        session['year'] = year
+        print(session['year'])
+
+    return render_template(
+        "pdt.html",
+        title = 'Portal da transparência'#,
+        # plot_data = json.dumps(gapminder(g.year))
+    )
+
+
+@pdt_bp.route("/pdt_data")
+def pdt_data():
+
+    data = gapminder(session['year'])
+    # data.insert(0, g.year)
+    print(session.get('year'))
+    return jsonify(data)
