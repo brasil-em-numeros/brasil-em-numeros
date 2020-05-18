@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, make_response
 from flask import session, jsonify
 from flask import current_app as app
 import plotly.express as px
@@ -11,6 +11,10 @@ pdt_bp = Blueprint(
     template_folder = "templates",
     static_folder = 'assets'
 )
+
+
+def json_headers():
+    return {'Content-Type' : 'application/json'}
 
 
 @pdt_bp.before_app_first_request
@@ -44,6 +48,9 @@ def pdt_page():
         year = int(year)
         session['year'] = year
         print(session['year'])
+        return make_response(
+            'Updating data succeeded!', 200, json_headers()
+        )
 
     return render_template(
         "pdt.html",
@@ -58,4 +65,4 @@ def pdt_data():
     data = gapminder(session['year'])
     # data.insert(0, g.year)
     print(session.get('year'))
-    return jsonify(data)
+    return make_response(jsonify(data), 200, json_headers())
