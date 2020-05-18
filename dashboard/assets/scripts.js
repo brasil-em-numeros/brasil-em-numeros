@@ -41,22 +41,33 @@ slider.addEventListener("input", e => {
         },
         body: JSON.stringify(slider.value)
     }).then(
-        fetch("/pdt_data").then(
-            response => response.json()
-        ).then(
-            data => plot_pdt(data)
-        )
+        response => {
+            if(response.status == 200){
+                return response.ok
+            } 
+
+            throw 'POST request to pdt data did not succeed.'
+        }
+    ).then(
+        res => {
+            fetch("/pdt_data").then(
+                response => response.json()
+            ).then(
+                data => plot_pdt(data)
+            )
+        }
     )
 });
 
 TESTER = document.getElementById('pdt-chart')
-// TESTER.addEventListener('DOMContentLodaded', () => {
-//     fetch("/pdt_data").then(
-//         response => response.json()
-//     ).then(
-//         data => plot_pdt(data)
-//     )
-// })
+TESTER.addEventListener('DOMContentLoaded', function(){
+    fetch("/pdt_data").then(
+        response => response.json()
+    ).then(
+        data => plot_pdt(data)
+    )
+})
+
 function plot_pdt(data){
     return Plotly.newPlot(
         TESTER, data,
