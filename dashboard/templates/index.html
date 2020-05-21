@@ -1,17 +1,18 @@
 
-    {% extends 'base.html' %}
-    {% block feeders %}
-    <a class="nav-link" href="/pdt">
+{% extends 'base.html' %}
+
+{% block feeders %}
+<a class="nav-link" href="{{url_for('pdt_bp.pdt_page')}}">
     <div class="sb-nav-link-icon">
         <i class="fas fa-comment-dollar"></i>
     </div>
     Portal da transparência
 </a>
-<a class="nav-link" href="/ibge">
+<a class="nav-link" href="{{url_for('ibge_bp.ibge_page')}}">
     <div class="sb-nav-link-icon">
         <i class="fas fa-globe-americas"></i>
     </div>
     IBGE
 </a>
-    {% endblock %}
+{% endblock %}
     

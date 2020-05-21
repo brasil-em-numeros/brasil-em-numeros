@@ -3,17 +3,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brasil em números</title>
-    <link rel= "stylesheet" href="{{ url_for('static', filename = 'style.css') }}">
+    {% block css %}
+        <link rel= "stylesheet" href="{{ url_for('static', filename = 'style.css') }}">
+    {% endblock %}
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/js/all.min.js" crossorigin="anonymous"></script>
 </head>
 <body class="sb-nav-fixed">
     
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
-        <a class="navbar-brand" href="home">Brasil em números</a>
+        <a class="navbar-brand" href="{{url_for('home_bp.home_page')}}">Brasil em números</a>
         <button class="btn btn-link btn-sm order-1 order-lg-0" id="sidebarToggle"><i class="fas fa-bars"></i></button>
-        <a class="nav-link" href="home">Início</a>
-        <a class="nav-link" href="about">Sobre</a>
+        <a class="nav-link" href="{{url_for('home_bp.home_page')}}">Início</a>
+        <a class="nav-link" href="{{url_for('about_bp.about_page')}}">Sobre</a>
     </nav>
 
     <div id="layoutSidenav">
