@@ -6,7 +6,8 @@ pdt_bp = Blueprint(
     name = "pdt_bp",
     import_name = __name__,
     template_folder = "templates",
-    static_folder = 'assets'
+    static_folder = 'assets',
+    url_prefix = '/pdt'
 )
 
 

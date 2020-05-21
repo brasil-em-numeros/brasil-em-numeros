@@ -1,0 +1,12 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.dashboard-pdt {
+    margin-left: 4rem;
+}
+
+h1.pdt-header {
+    color: red;
+}

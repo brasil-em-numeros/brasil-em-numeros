@@ -1,5 +1,14 @@
 {% extends "index.html" %}
 
+{% block css %}
+    {{super()}}
+    <link
+        href="{{ url_for('pdt_bp.static', filename='pdt.css') }}"
+        rel="stylesheet"
+        type="text/css"
+    />
+{% endblock %}
+
 {% block content %}
-<h1 class="mt-4">Portal da transparência</h1>
+<h1 class="mt-4 pdt-header">Portal da transparência</h1>
 {% endblock %}

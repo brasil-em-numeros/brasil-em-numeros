@@ -1,5 +1,4 @@
 from flask import Flask
-from .layouts import update_template
 
 
 def create_app():
@@ -10,7 +9,7 @@ def create_app():
         static_folder = "assets",
         instance_relative_config = False
     )
-    update_template()
+
     with app.app_context():
         
         # ------------
