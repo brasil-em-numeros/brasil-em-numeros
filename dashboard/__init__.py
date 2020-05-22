@@ -9,13 +9,13 @@ def create_app():
         static_folder = "assets",
         instance_relative_config = False
     )
-
     with app.app_context():
         
         # ------------
         #  Provedores
         # ------------
         
+        app.secret_key = '12345'
         from .home import home
         from .about import about
         from .provedores.pdt import pdt
