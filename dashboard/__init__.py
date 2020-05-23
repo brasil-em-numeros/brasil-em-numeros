@@ -19,7 +19,6 @@ def create_app():
         from .home import home
         from .about import about
         from .provedores.pdt import pdt
-        from .provedores.ibge import ibge
 
         # -------------------
         # Register Blueprints
@@ -28,6 +27,5 @@ def create_app():
         app.register_blueprint(home.home_bp)
         app.register_blueprint(about.about_bp)
         app.register_blueprint(pdt.pdt_bp)
-        app.register_blueprint(ibge.ibge_bp)
 
         return app
