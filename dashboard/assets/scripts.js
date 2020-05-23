@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 slider = document.getElementById("pdt-slider");
 slider.addEventListener("input", e => {
-    fetch("/pdt", {
+    fetch("/pdt/pdt", {
         method : 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -50,7 +50,7 @@ slider.addEventListener("input", e => {
         }
     ).then(
         res => {
-            fetch("/pdt_data").then(
+            fetch("/pdt/pdt_data").then(
                 response => response.json()
             ).then(
                 data => plot_pdt(data)
@@ -61,7 +61,7 @@ slider.addEventListener("input", e => {
 
 TESTER = document.getElementById('pdt-chart')
 TESTER.addEventListener('DOMContentLoaded', function(){
-    fetch("/pdt_data").then(
+    fetch("/pdt/pdt_data").then(
         response => response.json()
     ).then(
         data => plot_pdt(data)
