@@ -1,9 +1,8 @@
 # Brasil em Números
----
 
 Brasil em números é um dashboard que facilita a divulgação de informações públicas brasileiras para que a população possa entender melhor como o Brasil está sendo administrado. Esse projeto é uma tentativa de simplificar o consumo de dados públicos de uma forma mais acessível.
 
-Idéia concebida por @fvall e @juliano.
+Idéia concebida por [@fvall](https://github.com/fvall) e [@juliano](https://github.com/juliano).
 
 ## Executando
 
@@ -13,14 +12,14 @@ Idéia concebida por @fvall e @juliano.
 
 - Python 3.6 ou superior
 
-> Observação: Caso tenha também tenha instalado python versão 2.7, substitua `python` por `python3` e `pip` por `pip3` nos comandos abaixo.
+**Observação:** Caso tenha também tenha instalado python versão 2.7, substitua `python` por `python3` e `pip` por `pip3` nos comandos abaixo.
 
 #### Instalação
 
 - Clone o repositório
 - Crie um virtual environment
 
-```Python
+```
 python -m venv venv/
 ```
 
@@ -33,7 +32,7 @@ source venv/bin/activate
 - Instale os pacotes necessários
 
 
-```Python
+```
 pip install -r requirements.txt
 ```
 
@@ -47,11 +46,11 @@ deactivate
 
 - Caso o virutal enviroment não esteja ativado, ative-o usando os comandos acima.
 
-```Python
+```
 python dash.py
 ```
 
-O dashboard estará acessível em localhost:5000 no seu browser predileto.
+O dashboard estará acessível em localhost:5000 no seu browser predileto :smile:.
 
 ## Via Docker
 
@@ -69,3 +68,4 @@ docker build -t ben .
 docker run --rm -it -p 5000:5000 ben
 ````
 
+O dashboard estará acessível em localhost:5000 no seu browser predileto :smile:.
