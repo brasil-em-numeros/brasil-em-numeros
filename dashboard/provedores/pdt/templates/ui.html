@@ -22,35 +22,45 @@
 <div class="pdt">
     <div class="sidebar-pdt">
         <h4>Filtros</h4>
-        <label for="orgao">Selecione o órgão</label>
+        <br>
+        <!-- <label for="orgao">Selecione o órgão</label>
         <select class="custom-select" name ="orgao" id="orgao">
             <option value="saude">Ministério da Saúde</option>
             <option value="educacao">Ministério da Educação</option>
-        </select>
+        </select> -->
         
-        <input type="text" class="datepicker", id="pdt-date">
-        <form action="#">
+        <!-- <input type="text" class="datepicker", id="pdt-date"> -->
+        <!-- <form action="#">
             <p class="range-field">
               <input type="range" id="pdt-slider" min="1952" max="2007" step="5"/>
             </p>
-        </form>
+        </form> -->
+        <div class="input-field col s12">
+            <select id="orgao-gov", multiple>
+              <option value="" disabled selected>Selecione o órgão do superior</option>
+              {% for org in orgao %}
+                <option value="{{loop.index}}">{{org}}</option>
+              {% endfor %}
+            </select>
+            <label>Órgãos Superiores</label>
+        </div>
+        <div class="input-field col s12">
+            <select id="funcao-gov", multiple>
+              <option value="" disabled selected>Selecione a função do governo</option>
+              {% for fun in funcao %}
+                <option value="{{loop.index}}">{{fun}}</option>
+              {% endfor %}
+            </select>
+            <label>Funções</label>
+          </div>
     </div>
     <div class="dashboard-pdt">
         <div class="pdt-header">
             <h1>Portal da transparência</h1>
         </div>
         <div id="pdt-chart" style="width:900px;height:600px;"></div>
-        <!-- <script>
-            TESTER = document.getElementById('pdt-chart');
-            Plotly.newPlot(
-                TESTER,
-                fetch("/pdt_data")
-                    .then(response => console.log(response.json())),
-                {margin: { t: 0 } }
-            );
-        </script> -->
         <hr>
-        <div class="pdt-table">
+        <!-- <div class="pdt-table">
             <table>
                 <tr>
                     <th>A</th>
@@ -68,7 +78,7 @@
                     <td>6</td>
                 </tr>
             </table>
-        </div>
+        </div> -->
     </div>
 </div>
 
