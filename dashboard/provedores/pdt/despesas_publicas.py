@@ -9,7 +9,7 @@ from numbers import Number
 from functools import reduce
 from collections.abc import Iterable
 from collections import OrderedDict, ChainMap
-from ..benapi import client
+# from ..benapi import client
 
 loc = os.path.abspath(
     os.path.dirname(__file__)
@@ -62,12 +62,18 @@ def despesas():
             'a Pagar ', ''
         ).replace(
             '(R$)', ''
-        ) for c in cols if c.startswith('Valor ')
+        ).strip() for c in cols if c.startswith('Valor ')
     }
 
     novo_nome = ChainMap(anomes, nome, valor)
     return desp[list(cols)].rename(
         columns = novo_nome
+    ).pipe(
+        lambda df: df.melt(
+            id_vars = [c for c in df.columns if c not in set(valor.values())],
+            value_name = 'valor',
+            var_name   = 'modalidade'
+        )
     )
 
 
@@ -95,79 +101,79 @@ def orgaos_superiores():
     }
 
 
-def despesas_publicas_por_id(ids):
+# def despesas_publicas_por_id(ids):
 
-    url = client.URL
-    if not isinstance(ids, Iterable):
-        ids = int(ids)
-        url += + "/" + str(ids)
-        linha = requests.get(url, stream = True)
-        if linha.status_code != 200:
-            raise ValueError(f"Não há dados para linha {ids}")
+#     url = client.URL
+#     if not isinstance(ids, Iterable):
+#         ids = int(ids)
+#         url += + "/" + str(ids)
+#         linha = requests.get(url, stream = True)
+#         if linha.status_code != 200:
+#             raise ValueError(f"Não há dados para linha {ids}")
 
-        return pd.DataFrame({0 : linha.json()}, orient = 'index')
+#         return pd.DataFrame({0 : linha.json()}, orient = 'index')
     
-    ids = [int(i) for i in ids]
-    url = [url + "/" + str(i) for i in ids]
-    with concurrent.futures.ThreadPoolExecutor(100) as executor:
-        output = executor.map(lambda u: requests.get(u), url)
+#     ids = [int(i) for i in ids]
+#     url = [url + "/" + str(i) for i in ids]
+#     with concurrent.futures.ThreadPoolExecutor(100) as executor:
+#         output = executor.map(lambda u: requests.get(u), url)
 
-    output = filter(lambda x: x.status_code == 200, output)
-    return pd.DataFrame.from_dict({
-        idx : o.json() for idx, o in enumerate(output)
-    }, orient = 'index')
+#     output = filter(lambda x: x.status_code == 200, output)
+#     return pd.DataFrame.from_dict({
+#         idx : o.json() for idx, o in enumerate(output)
+#     }, orient = 'index')
 
 
-def despesas_publicas_por_codigo(codigo, **params):
+# def despesas_publicas_por_codigo(codigo, **params):
 
-    params  = dict(**params)
-    filtros = [
-        filtra_campo(key, val) for key, val in params.items()
-    ]
+#     params  = dict(**params)
+#     filtros = [
+#         filtra_campo(key, val) for key, val in params.items()
+#     ]
     
-    # ----------------------------
-    #  Filtra usando condição "E"
-    # ----------------------------
+#     # ----------------------------
+#     #  Filtra usando condição "E"
+#     # ----------------------------
 
-    def filtro(json):
-        def resultado(x):
-            return reduce(lambda f, g: g(f), filtros, x)
+#     def filtro(json):
+#         def resultado(x):
+#             return reduce(lambda f, g: g(f), filtros, x)
         
-        return resultado(json)
+#         return resultado(json)
 
-    linhas = map(processa_json, client.despesas_publicas(codigo))
-    if filtros:
-        linhas = filtro(linhas)
+#     linhas = map(processa_json, client.despesas_publicas(codigo))
+#     if filtros:
+#         linhas = filtro(linhas)
 
-    return pd.DataFrame.from_dict(
-        {idx : linha for idx, linha in enumerate(linhas)},
-        orient = 'index'
-    )
+#     return pd.DataFrame.from_dict(
+#         {idx : linha for idx, linha in enumerate(linhas)},
+#         orient = 'index'
+#     )
 
 
-def despesas_publicas(**params):
+# def despesas_publicas(**params):
     
-    params = dict(**params)
-    codigo = params.pop('codigo', None)
-    if codigo is None:
-        codigo = list(orgaos_superiores().keys())
+#     params = dict(**params)
+#     codigo = params.pop('codigo', None)
+#     if codigo is None:
+#         codigo = list(orgaos_superiores().keys())
 
-    if isinstance(codigo, str):
-        try:
-            codigo = int(codigo)
-        except ValueError:
-            return despesas_publicas(**params)
+#     if isinstance(codigo, str):
+#         try:
+#             codigo = int(codigo)
+#         except ValueError:
+#             return despesas_publicas(**params)
     
-    if isinstance(codigo, Number):
-        codigo = [int(codigo)]
+#     if isinstance(codigo, Number):
+#         codigo = [int(codigo)]
 
-    max_threads = len(orgaos_superiores())
-    partial = lambda cdg: despesas_publicas_por_codigo(cdg, **params)
-    with concurrent.futures.ThreadPoolExecutor(max_threads) as executor:
-        output = executor.map(partial, codigo)
+#     max_threads = len(orgaos_superiores())
+#     partial = lambda cdg: despesas_publicas_por_codigo(cdg, **params)
+#     with concurrent.futures.ThreadPoolExecutor(max_threads) as executor:
+#         output = executor.map(partial, codigo)
 
-    output = pd.concat(output, sort = False).reset_index(drop = True)
-    return output
+#     output = pd.concat(output, sort = False).reset_index(drop = True)
+#     return output
 
 
 def filtra_campo(campo, valor):

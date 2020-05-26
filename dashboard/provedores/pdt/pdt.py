@@ -4,6 +4,7 @@ from flask import current_app as app
 import plotly.express as px
 import json
 
+from .despesas_publicas import despesas
 
 pdt_bp = Blueprint(
     name = "pdt_bp",
@@ -18,9 +19,38 @@ def json_headers():
     return {'Content-Type' : 'application/json'}
 
 
+desp    = despesas()
+funcoes = sorted(desp['Função'].unique())
+orgaos  = sorted(desp['Órgão Superior'].unique())
+mods    = sorted(desp['modalidade'].unique())
+
+
 @pdt_bp.before_app_first_request
 def set_defaults():
     session['year'] = 2007
+    session['modalidade'] = 'Pago'
+
+
+def grafico_despesas(modalidade = 'Pago'):
+
+    dd = desp.groupby(
+        ['Órgão Superior', 'Função', 'Unidade Gestora', 'modalidade'],
+        as_index = False
+    ).sum()
+
+    fig = dd.loc[
+        dd['modalidade'] == modalidade, :
+    ].pipe(
+        lambda df: px.sunburst(
+            df.query("valor > 0"),
+            path   = ['Órgão Superior', 'Função', 'Unidade Gestora'],
+            values = 'valor',
+            maxdepth = 2
+        )
+    )
+
+    fig.update_traces(hovertemplate = 'Valor: R$%{value:,.2f}')
+    return json.loads(fig.to_json()).get('data')
 
 
 def gapminder(year = 2007):
@@ -55,15 +85,16 @@ def pdt_page():
 
     return render_template(
         "pdt.html",
-        title = 'Portal da transparência'#,
-        # plot_data = json.dumps(gapminder(g.year))
+        title = 'Portal da transparência',
+        funcao = funcoes,
+        orgao  = orgaos
     )
 
 
 @pdt_bp.route("/pdt_data")
 def pdt_data():
 
-    data = gapminder(session['year'])
+    data = grafico_despesas(session['modalidade'])
     # data.insert(0, g.year)
     print(session.get('year'))
     return make_response(jsonify(data), 200, json_headers())
