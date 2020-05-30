@@ -2,32 +2,33 @@
 import re
 import os
 import pandas as pd
-import requests
 import concurrent.futures
 
 from numbers import Number
 from functools import reduce
 from collections.abc import Iterable
 from collections import OrderedDict, ChainMap
+from .downloader import download
 # from ..benapi import client
-
-loc = os.path.abspath(
-    os.path.dirname(__file__)
-)
 
 
 def despesas():
 
-    arquivos = os.listdir(loc)
-    arquivos = filter(
-        lambda a: re.search("^despesas_\\d{2}_\\d{4}\\.csv$", a) is not None,
-        arquivos
-    )
+    def url(mes):
+        return f'https://raw.githubusercontent.com/brasil-em-numeros/public-data/master/portaltransparencia/despesas-execucao/2020{mes:02d}.csv'
+
+#    arquivos = os.listdir(loc)
+#    arquivos = filter(
+#        lambda a: re.search("^despesas_\\d{2}_\\d{4}\\.csv$", a) is not None,
+#        arquivos
+#    )
+
+    url_list = [url(mes) for mes in range(1, 6)]
 
     desp = pd.concat(
         map(
-            lambda a: pd.read_csv(os.path.join(loc, a), delimiter = ";"),
-            arquivos
+            lambda a: pd.read_csv(a, delimiter = ";"),
+            download(url_list)
         ),
         sort = False
     )
