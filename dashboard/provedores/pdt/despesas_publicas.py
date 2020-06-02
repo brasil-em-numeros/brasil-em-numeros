@@ -8,7 +8,7 @@ from .downloader import download
 def despesas():
 
     def url(mes):
-        return f'https://media.githubusercontent.com/media/brasil-em-numeros/public-data/master/portaltransparencia/despesas-execucao/2020{mes:02d}.csv'
+        return f'https://raw.githubusercontent.com/brasil-em-numeros/dados-publicos/master/portaltransparencia/despesas-execucao/2020{mes:02d}.csv'
 
     url_list = [url(mes) for mes in range(1, 6)]
 
