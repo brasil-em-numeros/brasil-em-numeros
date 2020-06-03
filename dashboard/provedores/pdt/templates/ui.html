@@ -4,7 +4,7 @@
         display: flex;
     }
     .sidebar-pdt {
-        width: 20vw;
+        width: 40vw;
         margin-right: 30px;
         background-color: #c1e3ff;
         padding-left: 5px;
@@ -20,65 +20,35 @@
 </style>
 
 <div class="pdt">
-    <div class="sidebar-pdt">
-        <h4>Filtros</h4>
-        <br>
-        <!-- <label for="orgao">Selecione o órgão</label>
-        <select class="custom-select" name ="orgao" id="orgao">
-            <option value="saude">Ministério da Saúde</option>
-            <option value="educacao">Ministério da Educação</option>
-        </select> -->
-        
-        <!-- <input type="text" class="datepicker", id="pdt-date"> -->
-        <!-- <form action="#">
-            <p class="range-field">
-              <input type="range" id="pdt-slider" min="1952" max="2007" step="5"/>
-            </p>
-        </form> -->
-        <div class="input-field col s12">
-            <select id="orgao-gov", multiple>
-              <option value="" disabled selected>Selecione o órgão do superior</option>
-              {% for org in orgao %}
-                <option value="{{loop.index}}">{{org}}</option>
-              {% endfor %}
-            </select>
-            <label>Órgãos Superiores</label>
-        </div>
-        <div class="input-field col s12">
-            <select id="funcao-gov", multiple>
-              <option value="" disabled selected>Selecione a função do governo</option>
-              {% for fun in funcao %}
-                <option value="{{loop.index}}">{{fun}}</option>
-              {% endfor %}
-            </select>
-            <label>Funções</label>
-          </div>
-    </div>
     <div class="dashboard-pdt">
         <div class="pdt-header">
             <h1>Portal da transparência</h1>
         </div>
-        <div id="pdt-chart" style="width:900px;height:600px;"></div>
+        <p>
+            O gráfico abaixo mostra a evolução dos gastos de cada função do governo.
+        </p>
+        <div id="funcao-chart" style="width:60vw;height:600px;"></div>
+        <br>
+        <p>
+            Algum texto sobre o gráfico abaixo. Mova o slider para trocar de mês/ano.
+        </p>
+        <div id="ministerio-chart" style="width:60vw;height:600px;"></div>
         <hr>
-        <!-- <div class="pdt-table">
-            <table>
-                <tr>
-                    <th>A</th>
-                    <th>B</th>
-                    <th>C</th>
-                </tr>
-                <tr>
-                    <td>1</td>
-                    <td>2</td>
-                    <td>3</td>
-                </tr>
-                <tr>
-                    <td>4</td>
-                    <td>5</td>
-                    <td>6</td>
-                </tr>
-            </table>
-        </div> -->
     </div>
 </div>
-
+<script>
+    Funcao = document.getElementById('funcao-chart');
+    fig = JSON.parse('{{funcao | safe}}')
+    data   = fig.data
+    layout = fig.layout
+	Plotly.newPlot(
+        Funcao, data, layout
+    );
+</script>
+<script>
+	Mins = document.getElementById('ministerio-chart');
+	Plotly.newPlot(
+        Mins,
+        {{ministerio | safe}}
+    );
+</script>

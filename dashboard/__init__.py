@@ -1,4 +1,5 @@
 from flask import Flask
+from . import provedores
 
 
 def create_app():

@@ -4,7 +4,6 @@ from flask import current_app as app
 import plotly.express as px
 import json
 
-from .despesas_publicas import despesas
 
 pdt_bp = Blueprint(
     name = "pdt_bp",
@@ -19,82 +18,44 @@ def json_headers():
     return {'Content-Type' : 'application/json'}
 
 
-desp    = despesas()
-funcoes = sorted(desp['Função'].unique())
-orgaos  = sorted(desp['Órgão Superior'].unique())
-mods    = sorted(desp['modalidade'].unique())
-
-
 @pdt_bp.before_app_first_request
 def set_defaults():
     session['year'] = 2007
     session['modalidade'] = 'Pago'
 
 
-def grafico_despesas(modalidade = 'Pago'):
+def grafico_despesas():
 
-    dd = desp.groupby(
-        ['Órgão Superior', 'Função', 'Unidade Gestora', 'modalidade'],
-        as_index = False
-    ).sum()
-
-    fig = dd.loc[
-        dd['modalidade'] == modalidade, :
-    ].pipe(
-        lambda df: px.sunburst(
-            df.query("valor > 0"),
-            path   = ['Órgão Superior', 'Função', 'Unidade Gestora'],
-            values = 'valor',
-            maxdepth = 2
-        )
+    gf = dict(
+        fun = funcao_por_ano(despesas()),
+        min = gastos_por_ministerio(despesas())
     )
 
-    fig.update_traces(hovertemplate = 'Valor: R$%{value:,.2f}')
-    return json.loads(fig.to_json()).get('data')
+    gf = {
+        k : v.to_json() for k, v in gf.items()
+    }
 
-
-def gapminder(year = 2007):
-
-    df = px.data.gapminder()
-    df = df.loc[df['year'] == year]
-    fig = px.scatter(
-        df,
-        x = "gdpPercap",
-        y = "lifeExp",
-        size  = "pop",
-        color = "continent",
-        hover_name = "country",
-        log_x = True,
-        size_max = 60
-    )
-
-    return json.loads(fig.to_json()).get('data')
+    return gf
 
 
 @pdt_bp.route("/pdt", methods = ['GET', 'POST'])
 def pdt_page():
 
     if request.method == 'POST':
-        year = request.get_json()
-        year = int(year)
-        session['year'] = year
-        print(session['year'])
+        js = request.get_json()
+        
+        for key, val in js.items():
+            print("{} : {}".format(key, val))
+            session[key] = val
+        
         return make_response(
             'Updating data succeeded!', 200, json_headers()
         )
 
+    graficos = grafico_despesas()
     return render_template(
         "pdt.html",
         title = 'Portal da transparência',
-        funcao = funcoes,
-        orgao  = orgaos
+        funcao = graficos['fun'],
+        ministerio  = graficos['min']
     )
-
-
-@pdt_bp.route("/pdt_data")
-def pdt_data():
-
-    data = grafico_despesas(session['modalidade'])
-    # data.insert(0, g.year)
-    print(session.get('year'))
-    return make_response(jsonify(data), 200, json_headers())
