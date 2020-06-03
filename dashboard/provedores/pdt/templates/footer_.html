@@ -1,0 +1,6 @@
+{% extends 'footer.html' %}
+
+{% block js %}
+    {{super()}}
+    <script src="{{url_for('pdt_bp.static', filename='pdt.js')}}"></script>
+{% endblock %}
