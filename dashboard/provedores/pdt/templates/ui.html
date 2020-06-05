@@ -33,6 +33,10 @@
             Algum texto sobre o gráfico abaixo. Mova o slider para trocar de mês/ano.
         </p>
         <div id="ministerio-chart" style="width:60vw;height:600px;"></div>
+        <br>
+        <br>
+        <p>Um heatmap para cada mês a ano. Só vai ficar bonito quando tivermos mais dados</p>
+        <div id="heatmap-chart" style="width:60vw;height:600px;"></div>
         <hr>
     </div>
 </div>
@@ -41,14 +45,19 @@
     fig = JSON.parse('{{funcao | safe}}')
     data   = fig.data
     layout = fig.layout
-	Plotly.newPlot(
-        Funcao, data, layout
-    );
+	Plotly.newPlot(Funcao, data, layout);
 </script>
 <script>
 	Mins = document.getElementById('ministerio-chart');
-	Plotly.newPlot(
-        Mins,
-        {{ministerio | safe}}
-    );
+	fig = JSON.parse('{{ministerio | safe}}')
+    data = fig.data
+    layout = fig.layout
+    Plotly.newPlot(Mins, data, layout);
+</script>
+<script>
+	Heat = document.getElementById('heatmap-chart');
+    fig = JSON.parse('{{heat | safe}}')
+    data = fig.data
+    layout = fig.layout
+	Plotly.newPlot(Heat, data, layout);
 </script>

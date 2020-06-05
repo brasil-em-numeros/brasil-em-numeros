@@ -4,6 +4,8 @@ from flask import current_app as app
 import plotly.express as px
 import json
 
+from . import despesas_publicas as desp
+
 
 pdt_bp = Blueprint(
     name = "pdt_bp",
@@ -12,6 +14,9 @@ pdt_bp = Blueprint(
     static_folder = 'assets',
     url_prefix = '/pdt'
 )
+
+
+despesas = desp.despesas()
 
 
 def json_headers():
@@ -26,9 +31,11 @@ def set_defaults():
 
 def grafico_despesas():
 
+    dados = despesas
     gf = dict(
-        fun = funcao_por_ano(despesas()),
-        min = gastos_por_ministerio(despesas())
+        fun  = desp.funcao_por_ano(dados),
+        min  = desp.gastos_por_ministerio(dados),
+        heat = desp.heatmap(dados)
     )
 
     gf = {
@@ -57,5 +64,6 @@ def pdt_page():
         "pdt.html",
         title = 'Portal da transparência',
         funcao = graficos['fun'],
-        ministerio  = graficos['min']
+        ministerio  = graficos['min'],
+        heat = graficos['heat']
     )

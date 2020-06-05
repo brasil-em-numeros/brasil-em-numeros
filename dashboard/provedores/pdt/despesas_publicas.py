@@ -2,11 +2,16 @@ import re
 import math
 import pandas as pd
 import datetime
+import itertools as it
 import plotly.express as px
 import plotly.graph_objects as go
 
+from textwrap import wrap
 from collections import ChainMap, OrderedDict
 from .downloader import download
+from more_itertools import partition
+
+pd.set_option("mode.chained_assignment", None)
 
 
 def despesas():
@@ -190,9 +195,11 @@ def gastos_por_ministerio(despesas):
     #  Top 10 ministérios
     # ----------------------
 
-    top10 = df.groupby(
-        ['ano_mes'],
-        as_index = False
+    top10 = df.drop(
+        columns = ['Órgão Superior'],
+        errors  = 'ignore'
+    ).groupby(
+        ['ano_mes'], as_index = False
     ).rank(method = "min", ascending = False)
 
     top10.columns = ['rank']
@@ -217,7 +224,7 @@ def gastos_por_ministerio(despesas):
         data = lambda x: x['ano_mes'].apply(
             lambda d: datetime.datetime.strptime(d + "/01", "%Y/%m/%d").strftime("%b/%Y")
         )
-    )
+    ).sort_values(['ano_mes'])
 
     # --------------------------
     #  Calcula tamanho do eixo
@@ -236,13 +243,30 @@ def gastos_por_ministerio(despesas):
     #  Calcula cada quadro
     # ----------------------
 
-    for dt, grp in df.groupby(['data']):
+    # --- Temos que filtrar por ano_mes para
+    # --- o plotly ordernar os meses de forma
+    # --- correta
+
+    for (am, dt), grp in df.groupby(['ano_mes', 'data']):
+
+        ministerios, outro = partition(
+            lambda x: x == 'Outros', grp['ministerio']
+        )
+
+        ministerios = sorted(ministerios)
+        grp.loc[:, 'ministerio'] = pd.Categorical(
+            grp['ministerio'], it.chain(ministerios, outro)
+        )
+        
+        grp = grp.sort_values(['ministerio'])
         fig.add_trace(
             go.Scatter(
                 visible=False,
                 name = dt,
                 x = grp['valor'],
-                y = grp['ministerio'],
+                y = grp['ministerio'].apply(
+                    lambda s: "<br>".join(wrap(s, width = 30))
+                ),
                 mode = "markers"
             )
         )
@@ -257,6 +281,7 @@ def gastos_por_ministerio(despesas):
             args = [
                 {"visible": [False] * len(fig.data)}
             ],  # layout attribute
+            label = fig.data[i].name
         )
         step["args"][0]["visible"][i] = True  # Toggle i'th trace to "visible"
         steps.append(step)
@@ -272,9 +297,10 @@ def gastos_por_ministerio(despesas):
 
     fig.update_layout(
         sliders = sliders,
-        title = "Top 10 ministérios com maior gasto no mês"
+        title = "Top 10 ministérios com maior gasto no mês",
         # -- Usar o abaixo com dados reais
-        # xaxis = dict(range = eixo_x, autorange = False)
+        xaxis = dict(range = eixo_x, autorange = False),
+        yaxis = dict(autorange = "reversed")
     )
 
     fig.update_xaxes( # the y-axis is in dollars
