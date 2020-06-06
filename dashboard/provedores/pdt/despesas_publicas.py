@@ -17,28 +17,16 @@ pd.set_option("mode.chained_assignment", None)
 def despesas():
 
     def url(mes):
-        return f'https://raw.githubusercontent.com/brasil-em-numeros/dados-publicos/master/portaltransparencia/despesas-execucao/2020{mes:02d}.csv'
+        return f'https://raw.githubusercontent.com/brasil-em-numeros/dados-publicos/master/portaltransparencia/despesas-execucao/graficos/2020{mes:02d}.csv'
 
     url_list = [url(mes) for mes in range(1, 6)]
 
     desp = pd.concat(
-        map(
-            lambda a: pd.read_csv(a, delimiter = ";"),
-            download(url_list)
-        ),
+        map(pd.read_csv, download(url_list)),
         sort = False
     )
 
-    # -----------------------------
-    #  Remove colunas com códigos
-    # -----------------------------
-
-    cols = filter(
-        lambda c: re.search(r'código', c, re.I) is None,
-        desp.columns
-    )
-
-    cols = list(cols)
+    cols = list(desp.columns)
 
     # -----------------------
     #  Renomeando as colunas
