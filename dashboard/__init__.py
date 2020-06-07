@@ -29,4 +29,9 @@ def create_app():
         app.register_blueprint(about.about_bp)
         app.register_blueprint(pdt.pdt_bp)
 
+        app.charts_cache = dict()
+        app.charts_cache.update(
+            pdt.grafico_despesas()
+        )
+
         return app

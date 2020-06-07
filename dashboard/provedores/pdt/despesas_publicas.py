@@ -14,18 +14,10 @@ from more_itertools import partition
 pd.set_option("mode.chained_assignment", None)
 
 
-def despesas():
+def formato_padrao(desp):
 
-    def url(mes):
-        return f'https://raw.githubusercontent.com/brasil-em-numeros/dados-publicos/master/portaltransparencia/despesas-execucao/graficos/2020{mes:02d}.csv'
-
-    url_list = [url(mes) for mes in range(1, 6)]
-
-    desp = pd.concat(
-        map(pd.read_csv, download(url_list)),
-        sort = False
-    )
-
+    if desp.empty:
+        return desp
     cols = list(desp.columns)
 
     # -----------------------
@@ -62,6 +54,30 @@ def despesas():
     )
 
 
+def despesas(transform = lambda x: x, *args, **kwargs):
+
+    def url(mes, ano = 2020):
+        return f'https://raw.githubusercontent.com/brasil-em-numeros/dados-publicos/master/portaltransparencia/despesas-execucao/graficos/{ano:04d}{mes:02d}.csv'
+
+    meses = range(1, 13)
+    anos  = range(2014, 2021)
+
+    url_list = [
+        url(mes, ano) for mes, ano in it.product(meses, anos)
+    ]
+
+    def trans(x, *args, **kwargs):
+        return transform(
+            formato_padrao(pd.read_csv(x)), *args, **kwargs
+        )
+    
+    url_list = download(url_list, trans, *args, **kwargs)
+    desp = filter(lambda df: not df.empty, url_list)
+    # desp = pd.concat(desp, sort = False)
+
+    return desp
+
+
 date_dict = OrderedDict(
     jan = "jan",
     feb = "fev",
@@ -96,9 +112,12 @@ date_dict = OrderedDict(
 # 1 - heatmap por mês e ano
 
 
-def heatmap(desp):
+def heatmap_data(desp):
 
-    desp = desp.query(
+    if desp.empty:
+        return desp
+
+    return desp.query(
         "modalidade == 'Pago'"
     ).query(
         "valor != 0"
@@ -112,9 +131,14 @@ def heatmap(desp):
     ).groupby(
         ['ano', 'mes'],
         as_index = False
-    ).sum().pivot(
+    ).sum()
+
+
+def heatmap_chart(data_heat):
+
+    data_heat = data_heat.pivot(
         'ano', 'mes', 'valor'
-    ).sort_index()
+    ).sort_index().fillna(0)
 
     def key(x):
         for i, k in enumerate(date_dict.keys()):
@@ -123,11 +147,11 @@ def heatmap(desp):
         
         return i
 
-    desp = desp[sorted(desp.columns, key = key)]
+    data_heat = data_heat[sorted(data_heat.columns, key = key)]
     fig  = px.imshow(
-        desp.to_numpy(),
-        x = [date_dict.get(c, c).title() for c in desp.columns],
-        y = [str(i) for i in desp.index],
+        data_heat.to_numpy(),
+        x = [date_dict.get(c, c).title() for c in data_heat.columns],
+        y = [str(i) for i in data_heat.index],
         labels = dict(color = "Gastos pagos"),
         color_continuous_scale = "RdYlGn_r"
     )
@@ -135,9 +159,12 @@ def heatmap(desp):
     return fig
 
 
-def funcao_por_ano(despesas):
+def funcao_data(desp):
 
-    df = despesas.query(
+    if desp.empty:
+        return desp
+
+    df = desp.query(
         "modalidade == 'Pago'"
     ).groupby(
         ['ano_mes', "Função"], as_index = False
@@ -146,12 +173,19 @@ def funcao_por_ano(despesas):
     df['data'] = df['ano_mes'] + "/01"
     df['data'] = pd.to_datetime(df['data'], format = '%Y/%m/%d')
 
+    return df
+
+
+def funcao_chart(data_funcao):
+
     fig = go.Figure()
     hover_template = "<b>%{text}</b><br>Gasto: %{y:$,.0f}"
-    funs = sorted(df['Função'].unique())
+    funs = sorted(data_funcao['Função'].unique())
     for fun in funs:
         
-        plot_data = df.loc[df['Função'] == fun]
+        plot_data = data_funcao.loc[
+            data_funcao['Função'] == fun
+        ].sort_values(['data'])
         x = plot_data['data']
         y = plot_data['valor']
         fig.add_trace(
@@ -171,13 +205,14 @@ def funcao_por_ano(despesas):
     return fig
 
 
-def gastos_por_ministerio(despesas):
+def ministerios_data(desp):
 
-    df = despesas.groupby(
+    if desp.empty:
+        return desp
+    
+    df = desp.groupby(
         ['ano_mes', 'Órgão Superior'], as_index = False
     ).sum()
-
-    fig  = go.Figure()
 
     # ----------------------
     #  Top 10 ministérios
@@ -212,7 +247,14 @@ def gastos_por_ministerio(despesas):
         data = lambda x: x['ano_mes'].apply(
             lambda d: datetime.datetime.strptime(d + "/01", "%Y/%m/%d").strftime("%b/%Y")
         )
-    ).sort_values(['ano_mes'])
+    )
+
+    return df
+
+
+def ministerios_chart(ministerios_data):
+
+    df = ministerios_data.sort_values(['ano_mes'])
 
     # --------------------------
     #  Calcula tamanho do eixo
@@ -235,6 +277,7 @@ def gastos_por_ministerio(despesas):
     # --- o plotly ordernar os meses de forma
     # --- correta
 
+    fig  = go.Figure()
     for (am, dt), grp in df.groupby(['ano_mes', 'data']):
 
         ministerios, outro = partition(

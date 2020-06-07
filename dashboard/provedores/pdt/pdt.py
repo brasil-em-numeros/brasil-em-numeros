@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, request, make_response
 from flask import session, jsonify
 from flask import current_app as app
-import plotly.express as px
 import json
+import pandas as pd
 
 from . import despesas_publicas as desp
 
@@ -16,33 +16,36 @@ pdt_bp = Blueprint(
 )
 
 
-despesas = desp.despesas()
-
-
 def json_headers():
     return {'Content-Type' : 'application/json'}
 
 
-@pdt_bp.before_app_first_request
-def set_defaults():
-    session['year'] = 2007
-    session['modalidade'] = 'Pago'
-
-
 def grafico_despesas():
 
-    dados = despesas
-    gf = dict(
-        fun  = desp.funcao_por_ano(dados),
-        min  = desp.gastos_por_ministerio(dados),
-        heat = desp.heatmap(dados)
+    print("")
+    print("Baixando dados...")
+    gf = (
+        (
+            desp.funcao_data(g),
+            desp.ministerios_data(g),
+            desp.heatmap_data(g)
+        ) for g in desp.despesas()
     )
 
-    gf = {
-        k : v.to_json() for k, v in gf.items()
-    }
+    gf = zip(*gf)
+    gf = (
+        chart(pd.concat(data, sort = False)) for chart, data in zip(
+            [desp.funcao_chart, desp.ministerios_chart, desp.heatmap_chart],
+            gf
+        )
+    )
 
-    return gf
+    print("Executando gráficos...")
+    graficos = dict()
+    for k, v in zip(['fun', 'min', 'heat'], gf):
+        graficos[k] = v.to_json()
+    
+    return graficos
 
 
 @pdt_bp.route("/pdt", methods = ['GET', 'POST'])
@@ -59,11 +62,11 @@ def pdt_page():
             'Updating data succeeded!', 200, json_headers()
         )
 
-    graficos = grafico_despesas()
+    # graficos = grafico_despesas()
     return render_template(
         "pdt.html",
         title = 'Portal da transparência',
-        funcao = graficos['fun'],
-        ministerio  = graficos['min'],
-        heat = graficos['heat']
+        funcao = app.charts_cache.get('fun'),
+        ministerio = app.charts_cache.get('min'),
+        heat = app.charts_cache.get('heat')
     )
