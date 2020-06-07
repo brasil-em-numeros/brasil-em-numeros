@@ -16,9 +16,6 @@ pdt_bp = Blueprint(
 )
 
 
-despesas = desp.despesas()
-
-
 def json_headers():
     return {'Content-Type' : 'application/json'}
 
@@ -31,7 +28,7 @@ def set_defaults():
 
 def grafico_despesas():
 
-    dados = despesas
+    dados = desp.despesas()
     gf = dict(
         fun  = desp.funcao_por_ano(dados),
         min  = desp.gastos_por_ministerio(dados),
@@ -43,6 +40,9 @@ def grafico_despesas():
     }
 
     return gf
+
+
+graficos = grafico_despesas()
 
 
 @pdt_bp.route("/pdt", methods = ['GET', 'POST'])
@@ -59,7 +59,7 @@ def pdt_page():
             'Updating data succeeded!', 200, json_headers()
         )
 
-    graficos = grafico_despesas()
+    # graficos = grafico_despesas()
     return render_template(
         "pdt.html",
         title = 'Portal da transparência',
