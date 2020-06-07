@@ -16,15 +16,20 @@ pd.set_option("mode.chained_assignment", None)
 
 def despesas():
 
-    def url(mes):
-        return f'https://raw.githubusercontent.com/brasil-em-numeros/dados-publicos/master/portaltransparencia/despesas-execucao/graficos/2020{mes:02d}.csv'
+    def url(mes, ano = 2020):
+        return f'https://raw.githubusercontent.com/brasil-em-numeros/dados-publicos/master/portaltransparencia/despesas-execucao/graficos/{ano:04d}{mes:02d}.csv'
 
-    url_list = [url(mes) for mes in range(1, 6)]
+    meses = range(1, 13)
+    anos  = range(2019, 2021)
 
-    desp = pd.concat(
-        map(pd.read_csv, download(url_list)),
-        sort = False
-    )
+    url_list = [
+        url(mes, ano) for mes, ano in it.product(meses, anos)
+    ]
+
+    url_list = download(url_list)
+    desp = map(pd.read_csv, url_list)
+    desp = filter(lambda df: not df.empty, desp)
+    desp = pd.concat(desp, sort = False)
 
     cols = list(desp.columns)
 

@@ -6,7 +6,7 @@ from io import BytesIO
 
 def download(url_list):
     processes = []
-    with ThreadPoolExecutor(max_workers=10) as executor:
+    with ThreadPoolExecutor(max_workers=100) as executor:
         for url in url_list:
             processes.append(executor.submit(_download_csv, url))
 
